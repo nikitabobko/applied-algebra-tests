@@ -259,6 +259,16 @@ class Tests(unittest.TestCase):
         assert_array_equal([21320, 18899, 5953, 57137],
                            gf.linsolve(A, b, pm))
 
+    def test_linsolve_8_with_zero(self):
+        pm = gf.gen_pow_matrix(87341)
+        A = [[1, pm[-20, 1], pm[10, 1], pm[8, 1]],
+             [1, pm[-20, 1], pm[89, 1], pm[-30, 1]],
+             [pm[298, 1], pm[32, 1], pm[86, 1], pm[-24, 1]],
+             [pm[5, 1], pm[-67, 1], pm[94, 1], pm[43, 1]]]
+        b = [pm[67, 1], pm[-39, 1], pm[49, 1], pm[87, 1]]
+        assert_array_equal([49980, 29479, 12587, 62413],
+                           gf.linsolve(A, b, pm))
+
     def test_linsolve_random(self):
         while True:
             pm = gf.gen_pow_matrix(92127)
