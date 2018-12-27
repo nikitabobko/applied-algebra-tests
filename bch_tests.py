@@ -1,6 +1,5 @@
 import random
 import unittest
-import math
 
 import numpy as np
 from numpy.testing import assert_array_equal
@@ -13,35 +12,32 @@ from bch import BCH
 class Tests(unittest.TestCase):
     def test_correct_1(self):
         code = self.do_correctness_test(2, 1)
-        self.assertEqual(1, code.dist())
+        self.assertEqual(3, code.dist())
 
     def test_correct_2(self):
         code = self.do_correctness_test(5, 10)
-        # print(code.dist())
+        self.assertEqual(31, code.dist())
 
     def test_correct_3(self):
-        self.do_correctness_test(8, 60)
+        self.do_correctness_test(8, 60, num_of_msgs=2)
 
     def test_correct_4(self):
-        self.do_correctness_test(9, 60)  # about 30 seconds
+        self.do_correctness_test(9, 60, num_of_msgs=1)
 
     def test_correct_5(self):
-        self.do_correctness_test(9, 20)  # about 8 seconds
+        self.do_correctness_test(9, 20, num_of_msgs=1)
 
     def test_correct_6(self):
-        self.do_correctness_test(16, 1)  # about 128 seconds
-
-    def test_correct_7(self):
         self.do_correctness_test(9, 60, get_msgs=lambda len: [np.concatenate([[0, 1], np.zeros(len - 2).astype(int)])])
 
-    def test_correct_8(self):
+    def test_correct_7(self):
 
         def foo(it):
             return [[0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1]]
 
         self.do_correctness_test(5, 10, get_broken=foo, get_expected_decoded=lambda l: np.array([np.full(l, np.nan)]))
 
-    def test_correct_9(self):
+    def test_correct_8(self):
 
         def broken(it):
             return [[0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -74,8 +70,8 @@ class Tests(unittest.TestCase):
     #     self.do_correctness_test(16, 32767)  # infinity...
     #     self.fail(msg="I don't believe that your algorithm is fast enough to get to this point")
 
-    def do_correctness_test(self, q, t, get_msgs=None, get_broken=None, get_expected_decoded=None):
-        pbar = tqdm(total=8)
+    def do_correctness_test(self, q, t, num_of_msgs=10, get_msgs=None, get_broken=None, get_expected_decoded=None):
+        pbar = tqdm(total=7)
         n = 2 ** q - 1
         code = BCH(n, t)
         pbar.update(1)
@@ -91,7 +87,7 @@ class Tests(unittest.TestCase):
         k = n - m
         self.assertRaises(BaseException, lambda: code.encode([np.ones(k + 1).astype(int)]))
         if get_msgs is None:
-            msgs = [[random.randint(0, 1) for _ in range(0, k)] for _ in range(0, 10)]
+            msgs = [[random.randint(0, 1) for _ in range(0, k)] for _ in range(0, num_of_msgs)]
         else:
             msgs = get_msgs(k)
         coded = code.encode(msgs)
@@ -107,42 +103,23 @@ class Tests(unittest.TestCase):
             broken = self.break_msgs(coded, t)
             assert_array_equal(code.decode(broken, method='pgz'), coded)
             assert_array_equal(code.decode(broken, method='euclid'), coded)
-            assert_array_equal(code.decode(broken), coded)
 
         if get_broken is not None and get_expected_decoded is not None:
             broken = get_broken(n)
             expected = get_expected_decoded(n)
             self.assert_array_equal(expected, code.decode(broken, method='pgz'))
             self.assert_array_equal(expected, code.decode(broken, method='euclid'))
-            self.assert_array_equal(expected, code.decode(broken))
-
-        # print('-------broken')
-        # broken = self.break_msgs(coded, t + random.randint(1, n - t))
-        # print(broken)
-        # self.assert_array_equal(coded, code.decode(broken, method='pgz'))
-        # self.assert_array_equal(coded, code.decode(broken, method='euclid'))
-        # self.assert_array_equal(coded, code.decode(broken))
 
         pbar.update(1)
         pbar.close()
         return code
 
     def assert_array_equal(self, expected, actual):
-        print(actual)
         expected = expected.astype(np.float64)
         actual = actual.astype(np.float64)
 
         self.assertTrue(((expected == actual) | (np.isnan(expected) & np.isnan(actual))).all(),
                         msg=f"Expected {expected}, Actual: {actual}")
-
-    def assert_not_decoded(self, decoded, original):
-        # if broken is np.nan:
-        print('--------broken is nan. It\'s ok')
-        print(np.array(decoded))
-        print(np.array(original))
-        # else:
-        # self.assertRaises(AssertionError, assert_array_equal, broken, original)
-        pass
 
     def break_msgs(self, coded, t):
         broken = np.array(coded)
