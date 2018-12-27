@@ -187,8 +187,8 @@ class Tests(unittest.TestCase):
 
     def test_euclid(self):
         pm = gf.gen_pow_matrix(37)
-        p1 = np.array([2, 14, 22, 23, 8, 17, 31, 11, 26, 3])
-        p2 = np.array([31, 23, 30, 31, 11, 9])
+        p1 = np.array([2, 14, 22, 23, 8, 17, 1, 11, 26, 3])
+        p2 = np.array([31, 23, 29, 31, 11, 9])
         max_deg = 3
         result = gf.euclid(p1, p2, pm, max_deg=max_deg)
         assert_array_equal(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
@@ -198,6 +198,9 @@ class Tests(unittest.TestCase):
 
     def test_polydeg_2(self):
         self.assertEqual(0, gf.polydeg([0, 0]))
+
+    def test_polydeg_3(self):
+        self.assertEqual(1, gf.polydeg([1, 1]))
 
     def test_linsolve(self):
         pm = gf.gen_pow_matrix(130207)
