@@ -209,13 +209,13 @@ class Tests(unittest.TestCase):
         pm = self.pow_matrices[108439]
         p1 = A_([pm[5, 1], pm[3, 1]])
         p2 = A_([pm[2, 1], pm[-1, 1]])
-        self.do_polyprod_and_polydiv_test(p1, p2, pm)
+        self._polyprod_polydiv(p1, p2, pm)
 
     def test_polyprod_and_polydiv_2(self):
         pm = self.pow_matrices[76553]
         p1 = A_([pm[5, 1], pm[9, 1]])
         p2 = A_([pm[6, 1], pm[-2, 1]])
-        self.do_polyprod_and_polydiv_test(p1, p2, pm)
+        self._polyprod_polydiv(p1, p2, pm)
 
     def test_divide_zero(self):
         for primpoly in [10187, 104155]:
@@ -269,9 +269,10 @@ class Tests(unittest.TestCase):
                     A = np.take(pm[:, 1], np.random.randint(pm_len-1, size=(n, n)))
                     b = np.take(pm[:, 1], np.random.randint(pm_len-1, size=n))
                     solution = gf.linsolve(A, b, pm)
+                solution = np.broadcast_to(solution, A.shape)
                 self.assertNdarrayEqual(gf.sum(gf.prod(A, solution, pm), axis=-1), b)
 
-    def do_polyprod_and_polydiv_test(self, p1, p2, pm):
+    def _polyprod_polydiv(self, p1, p2, pm):
         div = gf.polydiv(p1, p2, pm)
         mult = gf.polyprod(div[0], p2, pm)
         self.assertNdarrayEqual(p1, gf.add(mult, np.concatenate(
