@@ -1,145 +1,213 @@
-import random
-import unittest
+import sys
+import os
 
-import numpy as np
-from numpy.testing import assert_array_equal
-
+sys.path.append(os.path.abspath(os.getcwd()))
 import gf
+
+import unittest
+import numpy as np
 
 
 class Tests(unittest.TestCase):
-    def test_gen_pow_matrix(self):
-        assert_array_equal([[15, 2],
-                            [1, 4],
-                            [4, 8],
-                            [2, 3],
-                            [8, 6],
-                            [5, 12],
-                            [10, 11],
-                            [3, 5],
-                            [14, 10],
-                            [9, 7],
-                            [7, 14],
-                            [6, 15],
-                            [13, 13],
-                            [11, 9],
-                            [12, 1]], gf.gen_pow_matrix(19))
+    def setUp(self):
+        self.basedir = os.path.realpath(os.path.dirname(__file__))
+        self.pow_matrices = {}
+        with np.load(os.path.join(self.basedir, 'pow_matrices.npz')) as pms:
+            for primpoly, pm in pms.iteritems():
+                self.pow_matrices[int(primpoly)] = pm
 
-    def test_gen_pow_matrix_2(self):
-        assert_array_equal([[31, 2],
-                            [1, 4],
-                            [13, 8],
-                            [2, 16],
-                            [26, 27],
-                            [14, 13],
-                            [10, 26],
-                            [3, 15],
-                            [23, 30],
-                            [27, 7],
-                            [17, 14],
-                            [15, 28],
-                            [6, 3],
-                            [11, 6],
-                            [8, 12],
-                            [4, 24],
-                            [21, 11],
-                            [24, 22],
-                            [29, 23],
-                            [28, 21],
-                            [20, 17],
-                            [18, 25],
-                            [19, 9],
-                            [16, 18],
-                            [22, 31],
-                            [7, 5],
-                            [5, 10],
-                            [12, 20],
-                            [30, 19],
-                            [9, 29],
-                            [25, 1]], gf.gen_pow_matrix(59))
+    def assertNdarrayEqual(self, n1, n2, msg=None):
+        msg = msg or '\n\nExpected equal ndarrays n1 and n2, recieved:\nn1={}\nn2={}\n\n'.format(repr(n1), repr(n2))
+        self.assertIsInstance(n1, (np.ndarray, np.generic), msg=msg+'Object n1 is not an instance of np.ndarray. type={}'.format(type(n1)))
+        self.assertIsInstance(n2, (np.ndarray, np.generic), msg=msg+'Object n2 is not an instance of np.ndarray. type={}'.format(type(n2)))
+        self.assertTrue(np.can_cast(n1.dtype, n2.dtype, casting='same_kind') and
+                        np.can_cast(n2.dtype, n1.dtype, casting='same_kind'),
+                        msg=msg+'The dtype of np.ndarray can\'t be safely converted. dtypes=({}, {})'.format(
+                            n1.dtype, n2.dtype))
+        diff = None
+        try:
+            np.testing.assert_array_equal(n1, n2, verbose=False)
+        except AssertionError as e:
+            diff = msg+str(e)
+        if diff:
+            self.fail(diff)
+
+    def test_gen_pow_matrix(self):
+        for primpoly in self.pow_matrices.keys():
+            with self.subTest(primpoly=primpoly):
+                self.assertNdarrayEqual(self.pow_matrices[primpoly], gf.gen_pow_matrix(primpoly))
+
+    _arithmetic_tests = [
+        # primpoly, a, b, (a*b, a/b, a+b, sum(a, axis=0), sum(a, axis=1), ..., sum(a, axis=-1))
+        (19, np.asarray(13), np.asarray(1), (np.asarray(13), np.asarray(13), np.asarray(12), np.asarray(13))),
+        (59, np.arange(10), 10-np.arange(10), (
+            np.asarray([0, 9, 16, 9, 24, 17, 24, 9, 16, 9]),
+            np.asarray([0, 15, 19, 8, 23, 1, 28, 20, 4, 9]),
+            np.asarray([10, 8, 10, 4, 2, 0, 2, 4, 10, 8]),
+            np.asarray(1))),
+        (130207,
+         np.asarray([[90186, 79514, 13029, 119929],
+                     [96050, 129315, 83614, 23044],
+                     [84395, 69827, 122226, 1384]]),
+         np.asarray([[109294, 65478, 929, 12126],
+                     [46610, 35400, 91278, 74123],
+                     [100775, 116919, 57796, 25605]]),
+         (np.asarray([[42267, 62999, 37217, 35944],
+                      [53485, 16640, 20032, 26237],
+                      [46388, 53025, 24813, 6823]]),
+          np.asarray([[34410, 5025, 28777, 7080],
+                      [5827, 26296, 12404, 6633],
+                      [48337, 35291, 29326, 19722]]),
+          np.asarray([[51876, 117084, 12612, 129831],
+                      [114976, 95083, 8720, 97167],
+                      [49164, 55412, 81078, 24941]]),
+          np.asarray([89811, 122746, 43273, 101141]),
+          np.asarray([110668, 103051, 98674])))
+    ]
+    _linsolve_tests = [
+        # primpoly, A, b, result
+        (130207, np.asarray([[64, 23056, 128],
+                             [0, 0, 0],
+                             [1, 8, 1024]]),
+         np.asarray([4, 64, 33128]), np.nan),
+
+        (130207, np.asarray([[64, 23056, 128],
+                             [64, 23056, 128],
+                             [1, 8, 1024]]),
+         np.asarray([4, 64, 33128]), np.nan),
+
+        (108851, np.asarray([[64, 1949, 128],
+                             [512, 4, 128],
+                             [1, 8, 1024]]),
+         np.asarray([4, 64, 48853]), np.asarray([3009, 23136, 63822])),
+
+        (87341, np.asarray([[3272, 59574, 2048, 512],
+                            [15319, 54747, 28268, 58909],
+                            [59446, 43035, 42843, 56307],
+                            [64, 11873, 39430, 27645]]),
+         np.asarray([21004, 40721, 20556, 7067]), np.asarray([35048, 24262, 65502, 26384])),
+
+        (19, np.asarray([[3, 7], [12, 1]]), np.asarray([8, 13]), np.asarray([13, 14])),
+        (19, np.asarray([[3, 7], [12, 15]]), np.asarray([8, 13]), np.nan),
+
+        (87341, np.asarray([[3272, 59574, 0, 512],
+                            [59446, 54747, 0, 58909],
+                            [3272, 43035, 0, 56307],
+                            [3272, 11873, 0, 27645]]),
+         np.asarray([21004, 40721, 7067, 20556]), np.nan),
+
+        (87341, np.asarray([[0, 59574, 2048, 512],
+                            [15319, 54747, 28268, 58909],
+                            [59446, 43035, 42843, 56307],
+                            [64, 11873, 39430, 27645]]),
+         np.asarray([21004, 40721, 20556, 7067]), np.asarray([21320, 18899, 5953, 57137])),
+
+        (87341, np.asarray([[1, 59574, 2048, 512],
+                            [1, 59574, 28268, 58909],
+                            [59446, 43035, 42843, 56307],
+                            [64, 11873, 39430, 27645]]),
+         np.asarray([21004, 40721, 20556, 7067]), np.asarray([49980, 29479, 12587, 62413]))
+    ]
+
+    def test_arithmetic(self):
+        for idx, (primpoly, a, b, op_res) in enumerate(self._arithmetic_tests):
+            pm = self.pow_matrices[primpoly]
+            add_res = op_res[2]
+            with self.subTest(idx=idx, op='add'):
+                self.assertNdarrayEqual(gf.add(a, b), add_res)
+            for op, opname, res in zip((gf.prod, gf.divide), ('prod', 'divide'), op_res[:2]):
+                with self.subTest(idx=idx, primpoly=primpoly, op=opname):
+                    self.assertNdarrayEqual(op(a, b, pm), res)
+            sums = op_res[3:]
+            for ax, sum_res in enumerate(sums):
+                with self.subTest(idx=idx, op='sum', axis=ax):
+                    self.assertNdarrayEqual(gf.sum(a, axis=ax), sum_res)
+            sum_last = sums[-1]
+            with self.subTest(idx=idx, op='sum', axis=-1):
+                self.assertNdarrayEqual(gf.sum(a, axis=-1), sum_last)
 
     def test_minpoly(self):
-        minpoly = gf.minpoly([0b10], gf.gen_pow_matrix(0b1011))
+        minpoly = gf.minpoly([0b10], self.pow_matrices[0b1011])
 
-        assert_array_equal([1, 0, 1, 1], minpoly[0])
-        assert_array_equal([2, 4, 6], minpoly[1])
+        self.assertNdarrayEqual([1, 0, 1, 1], minpoly[0])
+        self.assertNdarrayEqual([2, 4, 6], minpoly[1])
 
     def test_minpoly_2(self):
-        minpoly = gf.minpoly([0, 0b10], gf.gen_pow_matrix(19))
-        assert_array_equal(minpoly[0], [1, 0, 0, 1, 1, 0])
-        assert_array_equal(minpoly[1], [0, 2, 3, 4, 5])
+        minpoly = gf.minpoly([0, 0b10], self.pow_matrices[19])
+        self.assertNdarrayEqual(minpoly[0], [1, 0, 0, 1, 1, 0])
+        self.assertNdarrayEqual(minpoly[1], [0, 2, 3, 4, 5])
 
     def test_polyprod(self):
-        assert_array_equal(gf.polyprod(np.array([1, 0b11]), np.array([1, 0b100]), gf.gen_pow_matrix(0b1011)),
+        self.assertNdarrayEqual(gf.polyprod(np.array([1, 0b11]), np.array([1, 0b100]), self.pow_matrices[0b1011]),
                            [1, 0b111, 0b111])
 
     def test_polyprod_normalize_1(self):
-        pm = gf.gen_pow_matrix(19)
+        pm = self.pow_matrices[19]
         p1 = [pm[5, 1], pm[-1, 1]]
         zero = [0]
-        assert_array_equal(gf.polyprod(p1, zero, pm), [0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), [0])
 
     def test_polyprod_normalize_2(self):
-        pm = gf.gen_pow_matrix(19)
+        pm = self.pow_matrices[19]
         p1 = [pm[-3, 1], pm[-1, 1]]
         zero = [0, 0]
-        assert_array_equal(gf.polyprod(p1, zero, pm), [0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), [0])
 
     def test_polyprod_normalize_3(self):
-        pm = gf.gen_pow_matrix(19)
+        pm = self.pow_matrices[19]
         p1 = [0, pm[-3, 1], pm[-1, 1]]
         zero = [0]
-        assert_array_equal(gf.polyprod(p1, zero, pm), [0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), [0])
 
     def test_polyprod_normalize_4(self):
-        pm = gf.gen_pow_matrix(19)
+        pm = self.pow_matrices[19]
         p1 = [0, pm[-3, 1], pm[-1, 1]]
         zero = [0, 0]
-        assert_array_equal(gf.polyprod(p1, zero, pm), [0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), [0])
 
     def test_polydiv(self):
-        div = gf.polydiv([0b10, 0b1], [0b1], gf.gen_pow_matrix(0b1011))
-        assert_array_equal(div[0], [0b10, 0b1])
-        assert_array_equal(div[1], [0b0])
+        div = gf.polydiv([0b10, 0b1], [0b1], self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], [0b10, 0b1])
+        self.assertNdarrayEqual(div[1], [0b0])
 
     def test_polydiv_normalize(self):
-        div = gf.polydiv([0, 0b10, 0b1], [0b1], gf.gen_pow_matrix(0b1011))
-        assert_array_equal(div[0], [0b10, 0b1])
-        assert_array_equal(div[1], [0b0])
+        div = gf.polydiv([0, 0b10, 0b1], [0b1], self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], [0b10, 0b1])
+        self.assertNdarrayEqual(div[1], [0b0])
 
     def test_polydiv_normalize_2(self):
-        div = gf.polydiv([0b10, 0b1], [0, 0b1], gf.gen_pow_matrix(0b1011))
-        assert_array_equal(div[0], [0b10, 0b1])
-        assert_array_equal(div[1], [0b0])
+        div = gf.polydiv([0b10, 0b1], [0, 0b1], self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], [0b10, 0b1])
+        self.assertNdarrayEqual(div[1], [0b0])
 
     def test_polydiv_normalize_3(self):
-        div = gf.polydiv([0, 0b10, 0b1], [0, 0b1], gf.gen_pow_matrix(0b1011))
-        assert_array_equal(div[0], [0b10, 0b1])
-        assert_array_equal(div[1], [0b0])
+        div = gf.polydiv([0, 0b10, 0b1], [0, 0b1], self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], [0b10, 0b1])
+        self.assertNdarrayEqual(div[1], [0b0])
 
     def test_polydiv_2(self):
-        div = gf.polydiv([0b10, 0b1], [0b10], gf.gen_pow_matrix(0b1011))
-        assert_array_equal(div[0], [0b1, 0b101])
-        assert_array_equal(div[1], [0b0])
+        div = gf.polydiv([0b10, 0b1], [0b10], self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], [0b1, 0b101])
+        self.assertNdarrayEqual(div[1], [0b0])
 
     def test_polydiv_3(self):
-        div = gf.polydiv([0b10, 0b1], [0b10, 0b0], gf.gen_pow_matrix(0b1011))
-        assert_array_equal(div[0], [0b1])
-        assert_array_equal(div[1], [0b1])
+        div = gf.polydiv([0b10, 0b1], [0b10, 0b0], self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], [0b1])
+        self.assertNdarrayEqual(div[1], [0b1])
 
     def test_polydiv_zero(self):
-        pm = gf.gen_pow_matrix(5391)
+        pm = self.pow_matrices[5391]
         for elem in pm[:, 1]:
             self.assertRaises(BaseException, lambda: gf.polydiv([elem], [0], pm))
 
     def test_polyprod_and_polydiv(self):
-        pm = gf.gen_pow_matrix(108439)
+        pm = self.pow_matrices[108439]
         p1 = [pm[5, 1], pm[3, 1]]
         p2 = [pm[2, 1], pm[-1, 1]]
         self.do_polyprod_and_polydiv_test(p1, p2, pm)
 
     def test_polyprod_and_polydiv_2(self):
-        pm = gf.gen_pow_matrix(76553)
+        pm = self.pow_matrices[76553]
         p1 = [pm[5, 1], pm[9, 1]]
         p2 = [pm[6, 1], pm[-2, 1]]
         self.do_polyprod_and_polydiv_test(p1, p2, pm)
@@ -147,51 +215,42 @@ class Tests(unittest.TestCase):
     def test_polyadd(self):
         a = gf.polyadd([2, 3], [5, 10, 110])
         b = gf.polyadd([0, 2, 3], [5, 10, 110])
-        assert_array_equal(a, b)
-        assert_array_equal([5, 8, 109], b)
+        self.assertNdarrayEqual(a, b)
+        self.assertNdarrayEqual([5, 8, 109], b)
 
     def test_polyadd_2(self):
         a = gf.polyadd([1, 6, 12], [1, 7, 8])
-        assert_array_equal([1, 4], a)
+        self.assertNdarrayEqual([1, 4], a)
 
     def test_polyadd_3(self):
         a = gf.polyadd([1, 2], [1, 2])
-        assert_array_equal(a, [0])
+        self.assertNdarrayEqual(a, [0])
 
     def test_divide_zero(self):
-        pm = gf.gen_pow_matrix(104155)
-        self.assertRaises(BaseException, lambda: gf.divide(pm[-1, 1], 0, pm))
+        for primpoly in [10187, 104155]:
+            pm = self.pow_matrices[primpoly]
+            elem = pm[-1, 1]
+            with self.subTest(primpoly=primpoly, e1=elem, e2=0):
+                self.assertRaises(BaseException, lambda: gf.divide(elem, 0, pm))
+            for elem in pm[:, 1]:
+                with self.subTest(primpoly=primpoly, e1=0, e2=elem):
+                    self.assertEqual(0, gf.divide(0, elem, pm))
 
-    def test_divide_zero_2(self):
-        pm = gf.gen_pow_matrix(10187)
-        for elem in pm[:, 1]:
-            self.assertEqual(0, gf.divide(0, elem, pm))
-
-    def test_divide_itself(self):
-        pm = gf.gen_pow_matrix(54193)
-        for elem in pm[:, 1]:
-            self.assertEqual(1, gf.divide(elem, elem, pm))
-
-    def test_divide_inverse(self):
-        pm = gf.gen_pow_matrix(88479)
-        for elem in pm[:, 1]:
-            inverse = gf.divide(1, elem, pm)
-            self.assertEqual(1, gf.prod(inverse, elem, pm))
-
-    def test_divide_all(self):
-        pm = gf.gen_pow_matrix(357)
-        for elem1 in pm[:, 1]:
-            for elem2 in pm[:, 1]:
-                a = gf.divide(elem1, elem2, pm)
-                self.assertEqual(elem1, gf.prod(a, elem2, pm))
+    def test_prod_divide(self):
+        for primpoly in [19, 59, 357, 54193, 88479]:
+            pm = self.pow_matrices[primpoly]
+            for elem1 in pm[:357, 1]:
+                for elem2 in pm[:357, 1]:
+                    with self.subTest(primpoly=primpoly, e1=elem1, e2=elem2):
+                        self.assertEqual(elem1, gf.prod(gf.divide(elem1, elem2, pm), elem2, pm))
 
     def test_euclid(self):
-        pm = gf.gen_pow_matrix(37)
+        pm = self.pow_matrices[37]
         p1 = np.array([2, 14, 22, 23, 8, 17, 1, 11, 26, 3])
         p2 = np.array([31, 23, 29, 31, 11, 9])
         max_deg = 3
         result = gf.euclid(p1, p2, pm, max_deg=max_deg)
-        assert_array_equal(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
+        self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
 
     def test_polydeg(self):
         self.assertEqual(0, gf.polydeg([0]))
@@ -203,91 +262,37 @@ class Tests(unittest.TestCase):
         self.assertEqual(1, gf.polydeg([1, 1]))
 
     def test_linsolve(self):
-        pm = gf.gen_pow_matrix(130207)
-        A = [[pm[5, 1], pm[20, 1], pm[6, 1]],
-             [0, 0, 0],
-             [pm[-1, 1], pm[2, 1], pm[9, 1]]]
-        self.assertTrue(gf.linsolve(A, [pm[1, 1], pm[5, 1], pm[-3, 1]], pm) is np.nan)
-
-    def test_linsolve_2(self):
-        pm = gf.gen_pow_matrix(130207)
-        A = [[pm[5, 1], pm[20, 1], pm[6, 1]],
-             [pm[5, 1], pm[20, 1], pm[6, 1]],
-             [pm[-1, 1], pm[2, 1], pm[9, 1]]]
-        self.assertTrue(gf.linsolve(A, [pm[1, 1], pm[5, 1], pm[-3, 1]], pm) is np.nan)
-
-    def test_linsolve_3(self):
-        pm = gf.gen_pow_matrix(108851)
-        A = [[pm[5, 1], pm[20, 1], pm[6, 1]],
-             [pm[8, 1], pm[1, 1], pm[6, 1]],
-             [pm[-1, 1], pm[2, 1], pm[9, 1]]]
-        assert_array_equal([3009, 23136, 63822], gf.linsolve(A, [pm[1, 1], pm[5, 1], pm[-3, 1]], pm))
-
-    def test_linsolve_4(self):
-        pm = gf.gen_pow_matrix(87341)
-        A = [[pm[20, 1], pm[-20, 1], pm[10, 1], pm[8, 1]],
-             [pm[198, 1], pm[30, 1], pm[89, 1], pm[-30, 1]],
-             [pm[298, 1], pm[32, 1], pm[86, 1], pm[-24, 1]],
-             [pm[5, 1], pm[-67, 1], pm[94, 1], pm[43, 1]]]
-        b = [pm[67, 1], pm[-39, 1], pm[49, 1], pm[87, 1]]
-        assert_array_equal([35048, 24262, 65502, 26384],
-                           gf.linsolve(A, b, pm))
-
-    def test_linsolve_5(self):
-        pm = gf.gen_pow_matrix(19)
-        A1 = np.array([[3, 7], [12, 1]])
-        A2 = np.array([[3, 7], [12, 15]])
-        b = np.array([8, 13])
-        assert_array_equal(np.array([13, 14]), gf.linsolve(A1, b, pm))
-        self.assertTrue(gf.linsolve(A2, b, pm) is np.nan)
-
-    def test_linsolve_6(self):
-        pm = gf.gen_pow_matrix(87341)
-        A = [[pm[20, 1], pm[-20, 1], 0, pm[8, 1]],
-             [pm[298, 1], pm[30, 1], 0, pm[-30, 1]],
-             [pm[20, 1], pm[32, 1], 0, pm[-24, 1]],
-             [pm[20, 1], pm[-67, 1], 0, pm[43, 1]]]
-        self.assertTrue(gf.linsolve(A, [pm[67, 1], pm[-39, 1], pm[87, 1], pm[49, 1]], pm) is np.nan)
-
-    def test_linsolve_7_with_zero(self):
-        pm = gf.gen_pow_matrix(87341)
-        A = [[0, pm[-20, 1], pm[10, 1], pm[8, 1]],
-             [pm[198, 1], pm[30, 1], pm[89, 1], pm[-30, 1]],
-             [pm[298, 1], pm[32, 1], pm[86, 1], pm[-24, 1]],
-             [pm[5, 1], pm[-67, 1], pm[94, 1], pm[43, 1]]]
-        b = [pm[67, 1], pm[-39, 1], pm[49, 1], pm[87, 1]]
-        assert_array_equal([21320, 18899, 5953, 57137],
-                           gf.linsolve(A, b, pm))
-
-    def test_linsolve_8_with_zero(self):
-        pm = gf.gen_pow_matrix(87341)
-        A = [[1, pm[-20, 1], pm[10, 1], pm[8, 1]],
-             [1, pm[-20, 1], pm[89, 1], pm[-30, 1]],
-             [pm[298, 1], pm[32, 1], pm[86, 1], pm[-24, 1]],
-             [pm[5, 1], pm[-67, 1], pm[94, 1], pm[43, 1]]]
-        b = [pm[67, 1], pm[-39, 1], pm[49, 1], pm[87, 1]]
-        assert_array_equal([49980, 29479, 12587, 62413],
-                           gf.linsolve(A, b, pm))
+        for idx, (primpoly, A, b, result) in enumerate(self._linsolve_tests):
+            with self.subTest(idx=idx, primpoly=primpoly, result=result):
+                pm = self.pow_matrices[primpoly]
+                check = gf.linsolve(A, b, pm)
+                if result is np.nan:
+                    self.assertIs(check, np.nan)
+                else:
+                    self.assertNdarrayEqual(gf.linsolve(A, b, pm), result)
 
     def test_linsolve_random(self):
-        while True:
-            pm = gf.gen_pow_matrix(92127)
+        num_tests = 100
+        n = 100
+
+        for idx in range(num_tests):
+            primpoly = np.random.choice(list(self.pow_matrices.keys()))
+            pm = self.pow_matrices[primpoly]
             pm_len = len(pm)
-            n = 100
-            A = [[pm[random.randint(0, pm_len - 1), 1] for _ in range(n)] for _ in range(n)]
-            b = [pm[random.randint(0, pm_len - 1), 1] for _ in range(n)]
-            solution = gf.linsolve(A, b, pm)
-            if not (solution is np.nan):
-                subst = [gf.sum(gf.prod(A[i], solution, pm)) for i in range(n)]
-                assert_array_equal(subst, b)
-                break
+            with self.subTest(idx=idx, primpoly=primpoly):
+                solution = np.nan
+                while solution is np.nan:
+                    A = np.take(pm[:, 1], np.random.randint(pm_len-1, size=(n, n)))
+                    b = np.take(pm[:, 1], np.random.randint(pm_len-1, size=n))
+                    solution = gf.linsolve(A, b, pm)
+                self.assertNdarrayEqual(gf.sum(gf.prod(A, solution, pm), axis=-1), b)
 
     def do_polyprod_and_polydiv_test(self, p1, p2, pm):
         div = gf.polydiv(p1, p2, pm)
         mult = gf.polyprod(div[0], p2, pm)
-        assert_array_equal(p1, gf.add(mult, np.concatenate(
+        self.assertNdarrayEqual(p1, gf.add(mult, np.concatenate(
             [np.zeros(len(mult) - len(div[1])).astype(int), div[1]])))
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
