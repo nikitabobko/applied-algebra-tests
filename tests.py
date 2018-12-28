@@ -211,20 +211,6 @@ class Tests(unittest.TestCase):
         p2 = np.asarray([pm[6, 1], pm[-2, 1]])
         self.do_polyprod_and_polydiv_test(p1, p2, pm)
 
-    def test_polyadd(self):
-        a = gf.polyadd(np.asarray([2, 3]), np.asarray([5, 10, 110]))
-        b = gf.polyadd(np.asarray([0, 2, 3]), np.asarray([5, 10, 110]))
-        self.assertNdarrayEqual(np.asarray([5, 8, 109]), a)
-        self.assertNdarrayEqual(np.asarray([5, 8, 109]), b)
-
-    def test_polyadd_2(self):
-        a = gf.polyadd(np.asarray([1, 6, 12]), np.asarray([1, 7, 8]))
-        self.assertNdarrayEqual(np.asarray([1, 4]), a)
-
-    def test_polyadd_3(self):
-        a = gf.polyadd(np.asarray([1, 2]), np.asarray([1, 2]))
-        self.assertNdarrayEqual(a, np.asarray([0]))
-
     def test_divide_zero(self):
         for primpoly in [10187, 104155]:
             pm = self.pow_matrices[primpoly]
@@ -236,12 +222,14 @@ class Tests(unittest.TestCase):
                     self.assertEqual(0, gf.divide(0, elem, pm))
 
     def test_prod_divide(self):
-        for primpoly in [19, 59, 357, 54193, 88479]:
+        n = 1000
+        for primpoly in [19, 59, 357, 54193, 88479, 104155]:
             pm = self.pow_matrices[primpoly]
-            for elem1 in pm[:357, 1]:
-                for elem2 in pm[:357, 1]:
-                    with self.subTest(primpoly=primpoly, e1=elem1, e2=elem2):
-                        self.assertEqual(elem1, gf.prod(gf.divide(elem1, elem2, pm), elem2, pm))
+            e1 = np.random.permutation(pm[:, 1])[:n, np.newaxis]
+            e2 = np.random.permutation(pm[:, 1])[:n]
+            e1, e2 = np.broadcast_arrays(e1, e2)
+            with self.subTest(primpoly=primpoly):
+                self.assertNdarrayEqual(e1, gf.prod(gf.divide(e1, e2, pm), e2, pm))
 
     def test_euclid(self):
         pm = self.pow_matrices[37]
@@ -250,15 +238,6 @@ class Tests(unittest.TestCase):
         max_deg = 3
         result = gf.euclid(p1, p2, pm, max_deg=max_deg)
         self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
-
-    def test_polydeg(self):
-        self.assertEqual(np.asarray(0), gf.polydeg(np.asarray([0])))
-
-    def test_polydeg_2(self):
-        self.assertEqual(np.asarray(0), gf.polydeg(np.asarray([0, 0])))
-
-    def test_polydeg_3(self):
-        self.assertEqual(np.asarray(1), gf.polydeg(np.asarray([1, 1])))
 
     def test_linsolve(self):
         for idx, (primpoly, A, b, result) in enumerate(self._linsolve_tests):
