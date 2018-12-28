@@ -127,104 +127,103 @@ class Tests(unittest.TestCase):
                 self.assertNdarrayEqual(gf.sum(a, axis=-1), sum_last)
 
     def test_minpoly(self):
-        minpoly = gf.minpoly([0b10], self.pow_matrices[0b1011])
+        minpoly = gf.minpoly(np.asarray([0b10]), self.pow_matrices[0b1011])
 
-        self.assertNdarrayEqual([1, 0, 1, 1], minpoly[0])
-        self.assertNdarrayEqual([2, 4, 6], minpoly[1])
+        self.assertNdarrayEqual(np.asarray([1, 0, 1, 1]), minpoly[0])
+        self.assertNdarrayEqual(np.asarray([2, 4, 6]), minpoly[1])
 
     def test_minpoly_2(self):
-        minpoly = gf.minpoly([0, 0b10], self.pow_matrices[19])
-        self.assertNdarrayEqual(minpoly[0], [1, 0, 0, 1, 1, 0])
-        self.assertNdarrayEqual(minpoly[1], [0, 2, 3, 4, 5])
+        minpoly = gf.minpoly(np.asarray([0, 0b10]), self.pow_matrices[19])
+        self.assertNdarrayEqual(minpoly[0], np.asarray([1, 0, 0, 1, 1, 0]))
+        self.assertNdarrayEqual(minpoly[1], np.asarray([0, 2, 3, 4, 5]))
 
     def test_polyprod(self):
-        self.assertNdarrayEqual(gf.polyprod(np.array([1, 0b11]), np.array([1, 0b100]), self.pow_matrices[0b1011]),
-                           [1, 0b111, 0b111])
+        self.assertNdarrayEqual(np.asarray([1, 0b111, 0b111]), gf.polyprod(np.array([1, 0b11]), np.array([1, 0b100]), self.pow_matrices[0b1011]))
 
     def test_polyprod_normalize_1(self):
         pm = self.pow_matrices[19]
-        p1 = [pm[5, 1], pm[-1, 1]]
-        zero = [0]
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), [0])
+        p1 = np.asarray([pm[5, 1], pm[-1, 1]])
+        zero = np.asarray([0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), np.asarray([0]))
 
     def test_polyprod_normalize_2(self):
         pm = self.pow_matrices[19]
-        p1 = [pm[-3, 1], pm[-1, 1]]
-        zero = [0, 0]
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), [0])
+        p1 = np.asarray([pm[-3, 1], pm[-1, 1]])
+        zero = np.asarray([0, 0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), np.asarray([0]))
 
     def test_polyprod_normalize_3(self):
         pm = self.pow_matrices[19]
-        p1 = [0, pm[-3, 1], pm[-1, 1]]
-        zero = [0]
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), [0])
+        p1 = np.asarray([0, pm[-3, 1], pm[-1, 1]])
+        zero = np.asarray([0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), np.asarray([0]))
 
     def test_polyprod_normalize_4(self):
         pm = self.pow_matrices[19]
-        p1 = [0, pm[-3, 1], pm[-1, 1]]
-        zero = [0, 0]
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), [0])
+        p1 = np.asarray([0, pm[-3, 1], pm[-1, 1]])
+        zero = np.asarray([0, 0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), np.asarray([0]))
 
     def test_polydiv(self):
-        div = gf.polydiv([0b10, 0b1], [0b1], self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], [0b10, 0b1])
-        self.assertNdarrayEqual(div[1], [0b0])
+        div = gf.polydiv(np.asarray([0b10, 0b1]), np.asarray([0b1]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], np.asarray([0b10, 0b1]))
+        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
 
     def test_polydiv_normalize(self):
-        div = gf.polydiv([0, 0b10, 0b1], [0b1], self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], [0b10, 0b1])
-        self.assertNdarrayEqual(div[1], [0b0])
+        div = gf.polydiv(np.asarray([0, 0b10, 0b1]), np.asarray([0b1]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], np.asarray([0b10, 0b1]))
+        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
 
     def test_polydiv_normalize_2(self):
-        div = gf.polydiv([0b10, 0b1], [0, 0b1], self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], [0b10, 0b1])
-        self.assertNdarrayEqual(div[1], [0b0])
+        div = gf.polydiv(np.asarray([0b10, 0b1]), np.asarray([0, 0b1]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], np.asarray([0b10, 0b1]))
+        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
 
     def test_polydiv_normalize_3(self):
-        div = gf.polydiv([0, 0b10, 0b1], [0, 0b1], self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], [0b10, 0b1])
-        self.assertNdarrayEqual(div[1], [0b0])
+        div = gf.polydiv(np.asarray([0, 0b10, 0b1]), np.asarray([0, 0b1]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], np.asarray([0b10, 0b1]))
+        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
 
     def test_polydiv_2(self):
-        div = gf.polydiv([0b10, 0b1], [0b10], self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], [0b1, 0b101])
-        self.assertNdarrayEqual(div[1], [0b0])
+        div = gf.polydiv(np.asarray([0b10, 0b1]), np.asarray([0b10]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], np.asarray([0b1, 0b101]))
+        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
 
     def test_polydiv_3(self):
-        div = gf.polydiv([0b10, 0b1], [0b10, 0b0], self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], [0b1])
-        self.assertNdarrayEqual(div[1], [0b1])
+        div = gf.polydiv(np.asarray([0b10, 0b1]), np.asarray([0b10, 0b0]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], np.asarray([0b1]))
+        self.assertNdarrayEqual(div[1], np.asarray([0b1]))
 
     def test_polydiv_zero(self):
         pm = self.pow_matrices[5391]
         for elem in pm[:, 1]:
-            self.assertRaises(BaseException, lambda: gf.polydiv([elem], [0], pm))
+            self.assertRaises(BaseException, lambda: gf.polydiv(np.asarray([elem]), np.asarray([0]), pm))
 
     def test_polyprod_and_polydiv(self):
         pm = self.pow_matrices[108439]
-        p1 = [pm[5, 1], pm[3, 1]]
-        p2 = [pm[2, 1], pm[-1, 1]]
+        p1 = np.asarray([pm[5, 1], pm[3, 1]])
+        p2 = np.asarray([pm[2, 1], pm[-1, 1]])
         self.do_polyprod_and_polydiv_test(p1, p2, pm)
 
     def test_polyprod_and_polydiv_2(self):
         pm = self.pow_matrices[76553]
-        p1 = [pm[5, 1], pm[9, 1]]
-        p2 = [pm[6, 1], pm[-2, 1]]
+        p1 = np.asarray([pm[5, 1], pm[9, 1]])
+        p2 = np.asarray([pm[6, 1], pm[-2, 1]])
         self.do_polyprod_and_polydiv_test(p1, p2, pm)
 
     def test_polyadd(self):
-        a = gf.polyadd([2, 3], [5, 10, 110])
-        b = gf.polyadd([0, 2, 3], [5, 10, 110])
-        self.assertNdarrayEqual(a, b)
-        self.assertNdarrayEqual([5, 8, 109], b)
+        a = gf.polyadd(np.asarray([2, 3]), np.asarray([5, 10, 110]))
+        b = gf.polyadd(np.asarray([0, 2, 3]), np.asarray([5, 10, 110]))
+        self.assertNdarrayEqual(np.asarray([5, 8, 109]), a)
+        self.assertNdarrayEqual(np.asarray([5, 8, 109]), b)
 
     def test_polyadd_2(self):
-        a = gf.polyadd([1, 6, 12], [1, 7, 8])
-        self.assertNdarrayEqual([1, 4], a)
+        a = gf.polyadd(np.asarray([1, 6, 12]), np.asarray([1, 7, 8]))
+        self.assertNdarrayEqual(np.asarray([1, 4]), a)
 
     def test_polyadd_3(self):
-        a = gf.polyadd([1, 2], [1, 2])
-        self.assertNdarrayEqual(a, [0])
+        a = gf.polyadd(np.asarray([1, 2]), np.asarray([1, 2]))
+        self.assertNdarrayEqual(a, np.asarray([0]))
 
     def test_divide_zero(self):
         for primpoly in [10187, 104155]:
@@ -253,13 +252,13 @@ class Tests(unittest.TestCase):
         self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
 
     def test_polydeg(self):
-        self.assertEqual(0, gf.polydeg([0]))
+        self.assertEqual(np.asarray(0), gf.polydeg(np.asarray([0])))
 
     def test_polydeg_2(self):
-        self.assertEqual(0, gf.polydeg([0, 0]))
+        self.assertEqual(np.asarray(0), gf.polydeg(np.asarray([0, 0])))
 
     def test_polydeg_3(self):
-        self.assertEqual(1, gf.polydeg([1, 1]))
+        self.assertEqual(np.asarray(1), gf.polydeg(np.asarray([1, 1])))
 
     def test_linsolve(self):
         for idx, (primpoly, A, b, result) in enumerate(self._linsolve_tests):
