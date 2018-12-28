@@ -7,6 +7,8 @@ import gf
 import unittest
 import numpy as np
 
+A_ = np.asarray
+
 
 class Tests(unittest.TestCase):
     def setUp(self):
@@ -39,74 +41,78 @@ class Tests(unittest.TestCase):
 
     _arithmetic_tests = [
         # primpoly, a, b, (a*b, a/b, a+b, sum(a, axis=0), sum(a, axis=1), ..., sum(a, axis=-1))
-        (19, np.asarray(13), np.asarray(1), (np.asarray(13), np.asarray(13), np.asarray(12), np.asarray(13))),
-        (59, np.arange(10), 10-np.arange(10), (
-            np.asarray([0, 9, 16, 9, 24, 17, 24, 9, 16, 9]),
-            np.asarray([0, 15, 19, 8, 23, 1, 28, 20, 4, 9]),
-            np.asarray([10, 8, 10, 4, 2, 0, 2, 4, 10, 8]),
-            np.asarray(1))),
+        (19, A_(13), A_(1), (A_(13), A_(13), A_(12), A_(13))),
+        (59, np.arange(10), 10 - np.arange(10),
+         (
+             A_([0, 9, 16, 9, 24, 17, 24, 9, 16, 9]),
+             A_([0, 15, 19, 8, 23, 1, 28, 20, 4, 9]),
+             A_([10, 8, 10, 4, 2, 0, 2, 4, 10, 8]),
+             A_(1)
+         )),
         (130207,
-         np.asarray([[90186, 79514, 13029, 119929],
-                     [96050, 129315, 83614, 23044],
-                     [84395, 69827, 122226, 1384]]),
-         np.asarray([[109294, 65478, 929, 12126],
-                     [46610, 35400, 91278, 74123],
-                     [100775, 116919, 57796, 25605]]),
-         (np.asarray([[42267, 62999, 37217, 35944],
-                      [53485, 16640, 20032, 26237],
-                      [46388, 53025, 24813, 6823]]),
-          np.asarray([[34410, 5025, 28777, 7080],
-                      [5827, 26296, 12404, 6633],
-                      [48337, 35291, 29326, 19722]]),
-          np.asarray([[51876, 117084, 12612, 129831],
-                      [114976, 95083, 8720, 97167],
-                      [49164, 55412, 81078, 24941]]),
-          np.asarray([89811, 122746, 43273, 101141]),
-          np.asarray([110668, 103051, 98674])))
+         A_([[40149, 51717, 13029, 10470],
+             [35757, 1468, 47617, 23044],
+             [46388, 60508, 8685, 1384]]),
+         A_([[22129, 65478, 929, 12126],
+             [46610, 35400, 38929, 56596],
+             [30008, 13352, 57796, 25605]]),
+         (
+             A_([[9535, 8756, 37217, 28517],
+                 [61920, 12737, 22179, 40262],
+                 [56217, 59163, 16552, 6823]]),
+             A_([[16049, 37452, 28777, 27218],
+                 [53620, 60519, 35689, 5025],
+                 [44202, 11489, 19327, 19722]]),
+             A_([[51876, 13763, 12612, 1976],
+                 [15807, 36852, 8720, 34576],
+                 [49164, 55412, 49193, 24941]]),
+             A_([41548, 9189, 43273, 30602]),
+             A_([19667, 28180, 32237])
+         ))
     ]
     _linsolve_tests = [
         # primpoly, A, b, result
-        (130207, np.asarray([[64, 23056, 128],
-                             [0, 0, 0],
-                             [1, 8, 1024]]),
-         np.asarray([4, 64, 33128]), np.nan),
+        (130207, A_([[64, 23056, 128],
+                     [0, 0, 0],
+                     [1, 8, 1024]]),
+         A_([4, 64, 33128]), np.nan),
 
-        (130207, np.asarray([[64, 23056, 128],
-                             [64, 23056, 128],
-                             [1, 8, 1024]]),
-         np.asarray([4, 64, 33128]), np.nan),
+        (130207, A_([[64, 23056, 128],
+                     [64, 23056, 128],
+                     [1, 8, 1024]]),
+         A_([4, 64, 33128]), np.nan),
 
-        (108851, np.asarray([[64, 1949, 128],
-                             [512, 4, 128],
-                             [1, 8, 1024]]),
-         np.asarray([4, 64, 48853]), np.asarray([3009, 23136, 63822])),
+        (108851, A_([[64, 1949, 128],
+                     [512, 4, 128],
+                     [1, 8, 1024]]),
+         A_([4, 64, 48853]), A_([3009, 23136, 63822])),
 
-        (87341, np.asarray([[3272, 59574, 2048, 512],
-                            [15319, 54747, 28268, 58909],
-                            [59446, 43035, 42843, 56307],
-                            [64, 11873, 39430, 27645]]),
-         np.asarray([21004, 40721, 20556, 7067]), np.asarray([35048, 24262, 65502, 26384])),
+        (87341, A_([[3272, 59574, 2048, 512],
+                    [15319, 54747, 28268, 58909],
+                    [59446, 43035, 42843, 56307],
+                    [64, 11873, 39430, 27645]]),
+         A_([21004, 40721, 20556, 7067]), A_([35048, 24262, 65502, 26384])),
 
-        (19, np.asarray([[3, 7], [12, 1]]), np.asarray([8, 13]), np.asarray([13, 14])),
-        (19, np.asarray([[3, 7], [12, 15]]), np.asarray([8, 13]), np.nan),
+        (19, A_([[3, 7], [12, 1]]), A_([8, 13]), A_([13, 14])),
+        (19, A_([[3, 7], [12, 15]]), A_([8, 13]), np.nan),
 
-        (87341, np.asarray([[3272, 59574, 0, 512],
-                            [59446, 54747, 0, 58909],
-                            [3272, 43035, 0, 56307],
-                            [3272, 11873, 0, 27645]]),
-         np.asarray([21004, 40721, 7067, 20556]), np.nan),
+        (87341, A_([[3272, 59574, 0, 512],
+                    [59446, 54747, 0, 58909],
+                    [3272, 43035, 0, 56307],
+                    [3272, 11873, 0, 27645]]),
+         A_([21004, 40721, 7067, 20556]), np.nan),
 
-        (87341, np.asarray([[0, 59574, 2048, 512],
-                            [15319, 54747, 28268, 58909],
-                            [59446, 43035, 42843, 56307],
-                            [64, 11873, 39430, 27645]]),
-         np.asarray([21004, 40721, 20556, 7067]), np.asarray([21320, 18899, 5953, 57137])),
+        (87341, A_([[0, 59574, 2048, 512],
+                    [15319, 54747, 28268, 58909],
+                    [59446, 43035, 42843, 56307],
+                    [64, 11873, 39430, 27645]]),
+         A_([21004, 40721, 20556, 7067]), A_([21320, 18899, 5953, 57137])),
 
-        (87341, np.asarray([[1, 59574, 2048, 512],
-                            [1, 59574, 28268, 58909],
-                            [59446, 43035, 42843, 56307],
-                            [64, 11873, 39430, 27645]]),
-         np.asarray([21004, 40721, 20556, 7067]), np.asarray([49980, 29479, 12587, 62413]))
+        (87341, A_([[1, 59574, 2048, 512],
+                    [1, 59574, 28268, 58909],
+                    [59446, 43035, 42843, 56307],
+                    [64, 11873, 39430, 27645]]),
+         A_([21004, 40721, 20556, 7067]), A_([49980, 29479, 12587, 62413]))
     ]
 
     def test_arithmetic(self):
@@ -127,88 +133,88 @@ class Tests(unittest.TestCase):
                 self.assertNdarrayEqual(gf.sum(a, axis=-1), sum_last)
 
     def test_minpoly(self):
-        minpoly = gf.minpoly(np.asarray([0b10]), self.pow_matrices[0b1011])
+        minpoly = gf.minpoly(A_([0b10]), self.pow_matrices[0b1011])
 
-        self.assertNdarrayEqual(np.asarray([1, 0, 1, 1]), minpoly[0])
-        self.assertNdarrayEqual(np.asarray([2, 4, 6]), minpoly[1])
+        self.assertNdarrayEqual(A_([1, 0, 1, 1]), minpoly[0])
+        self.assertNdarrayEqual(A_([2, 4, 6]), minpoly[1])
 
     def test_minpoly_2(self):
-        minpoly = gf.minpoly(np.asarray([0, 0b10]), self.pow_matrices[19])
-        self.assertNdarrayEqual(minpoly[0], np.asarray([1, 0, 0, 1, 1, 0]))
-        self.assertNdarrayEqual(minpoly[1], np.asarray([0, 2, 3, 4, 5]))
+        minpoly = gf.minpoly(A_([0, 0b10]), self.pow_matrices[19])
+        self.assertNdarrayEqual(minpoly[0], A_([1, 0, 0, 1, 1, 0]))
+        self.assertNdarrayEqual(minpoly[1], A_([0, 2, 3, 4, 5]))
 
     def test_polyprod(self):
-        self.assertNdarrayEqual(np.asarray([1, 0b111, 0b111]), gf.polyprod(np.array([1, 0b11]), np.array([1, 0b100]), self.pow_matrices[0b1011]))
+        self.assertNdarrayEqual(A_([1, 0b111, 0b111]), gf.polyprod(A_([1, 0b11]), A_([1, 0b100]), self.pow_matrices[0b1011]))
 
     def test_polyprod_normalize_1(self):
         pm = self.pow_matrices[19]
-        p1 = np.asarray([pm[5, 1], pm[-1, 1]])
-        zero = np.asarray([0])
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), np.asarray([0]))
+        p1 = A_([pm[5, 1], pm[-1, 1]])
+        zero = A_([0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
 
     def test_polyprod_normalize_2(self):
         pm = self.pow_matrices[19]
-        p1 = np.asarray([pm[-3, 1], pm[-1, 1]])
-        zero = np.asarray([0, 0])
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), np.asarray([0]))
+        p1 = A_([pm[-3, 1], pm[-1, 1]])
+        zero = A_([0, 0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
 
     def test_polyprod_normalize_3(self):
         pm = self.pow_matrices[19]
-        p1 = np.asarray([0, pm[-3, 1], pm[-1, 1]])
-        zero = np.asarray([0])
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), np.asarray([0]))
+        p1 = A_([0, pm[-3, 1], pm[-1, 1]])
+        zero = A_([0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
 
     def test_polyprod_normalize_4(self):
         pm = self.pow_matrices[19]
-        p1 = np.asarray([0, pm[-3, 1], pm[-1, 1]])
-        zero = np.asarray([0, 0])
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), np.asarray([0]))
+        p1 = A_([0, pm[-3, 1], pm[-1, 1]])
+        zero = A_([0, 0])
+        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
 
     def test_polydiv(self):
-        div = gf.polydiv(np.asarray([0b10, 0b1]), np.asarray([0b1]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], np.asarray([0b10, 0b1]))
-        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
+        div = gf.polydiv(A_([0b10, 0b1]), A_([0b1]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
+        self.assertNdarrayEqual(div[1], A_([0b0]))
 
     def test_polydiv_normalize(self):
-        div = gf.polydiv(np.asarray([0, 0b10, 0b1]), np.asarray([0b1]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], np.asarray([0b10, 0b1]))
-        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
+        div = gf.polydiv(A_([0, 0b10, 0b1]), A_([0b1]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
+        self.assertNdarrayEqual(div[1], A_([0b0]))
 
     def test_polydiv_normalize_2(self):
-        div = gf.polydiv(np.asarray([0b10, 0b1]), np.asarray([0, 0b1]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], np.asarray([0b10, 0b1]))
-        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
+        div = gf.polydiv(A_([0b10, 0b1]), A_([0, 0b1]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
+        self.assertNdarrayEqual(div[1], A_([0b0]))
 
     def test_polydiv_normalize_3(self):
-        div = gf.polydiv(np.asarray([0, 0b10, 0b1]), np.asarray([0, 0b1]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], np.asarray([0b10, 0b1]))
-        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
+        div = gf.polydiv(A_([0, 0b10, 0b1]), A_([0, 0b1]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
+        self.assertNdarrayEqual(div[1], A_([0b0]))
 
     def test_polydiv_2(self):
-        div = gf.polydiv(np.asarray([0b10, 0b1]), np.asarray([0b10]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], np.asarray([0b1, 0b101]))
-        self.assertNdarrayEqual(div[1], np.asarray([0b0]))
+        div = gf.polydiv(A_([0b10, 0b1]), A_([0b10]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], A_([0b1, 0b101]))
+        self.assertNdarrayEqual(div[1], A_([0b0]))
 
     def test_polydiv_3(self):
-        div = gf.polydiv(np.asarray([0b10, 0b1]), np.asarray([0b10, 0b0]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], np.asarray([0b1]))
-        self.assertNdarrayEqual(div[1], np.asarray([0b1]))
+        div = gf.polydiv(A_([0b10, 0b1]), A_([0b10, 0b0]), self.pow_matrices[0b1011])
+        self.assertNdarrayEqual(div[0], A_([0b1]))
+        self.assertNdarrayEqual(div[1], A_([0b1]))
 
     def test_polydiv_zero(self):
         pm = self.pow_matrices[5391]
         for elem in pm[:, 1]:
-            self.assertRaises(BaseException, lambda: gf.polydiv(np.asarray([elem]), np.asarray([0]), pm))
+            self.assertRaises(BaseException, lambda: gf.polydiv(A_([elem]), A_([0]), pm))
 
     def test_polyprod_and_polydiv(self):
         pm = self.pow_matrices[108439]
-        p1 = np.asarray([pm[5, 1], pm[3, 1]])
-        p2 = np.asarray([pm[2, 1], pm[-1, 1]])
+        p1 = A_([pm[5, 1], pm[3, 1]])
+        p2 = A_([pm[2, 1], pm[-1, 1]])
         self.do_polyprod_and_polydiv_test(p1, p2, pm)
 
     def test_polyprod_and_polydiv_2(self):
         pm = self.pow_matrices[76553]
-        p1 = np.asarray([pm[5, 1], pm[9, 1]])
-        p2 = np.asarray([pm[6, 1], pm[-2, 1]])
+        p1 = A_([pm[5, 1], pm[9, 1]])
+        p2 = A_([pm[6, 1], pm[-2, 1]])
         self.do_polyprod_and_polydiv_test(p1, p2, pm)
 
     def test_divide_zero(self):
@@ -233,8 +239,8 @@ class Tests(unittest.TestCase):
 
     def test_euclid(self):
         pm = self.pow_matrices[37]
-        p1 = np.array([2, 14, 22, 23, 8, 17, 1, 11, 26, 3])
-        p2 = np.array([31, 23, 29, 31, 11, 9])
+        p1 = A_([2, 14, 22, 23, 8, 17, 1, 11, 26, 3])
+        p2 = A_([31, 23, 29, 31, 11, 9])
         max_deg = 3
         result = gf.euclid(p1, p2, pm, max_deg=max_deg)
         self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
