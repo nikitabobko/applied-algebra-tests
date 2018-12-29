@@ -6,9 +6,9 @@ import numpy as np
 
 sys.path.append(os.path.abspath(os.getcwd()))
 # noinspection PyUnresolvedReferences
-import gf
+import gf   # noqa: E402
 # noinspection PyUnresolvedReferences
-import bch
+import bch  # noqa: E402
 
 A_ = np.asarray
 
