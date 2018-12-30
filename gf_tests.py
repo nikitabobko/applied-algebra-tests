@@ -301,6 +301,33 @@ class GFTests(NumpyTest):
         result = gf.euclid(p1, p2, pm, max_deg=max_deg)
         self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
 
+    def test_11_euclid(self):
+        pm = self.pow_matrices[357]
+        p1 = A_([56, 34, 2, 10])
+        p2 = A_([1, 62, 32, 15])
+        correct = [A_([144]), A_([137,  70,  20]), A_([128, 199,  73])]
+        result = gf.euclid(p1, p2, pm)
+        self.assertNdarrayEqual(result[0], correct[0])
+        self.assertNdarrayEqual(result[1], correct[1])
+        self.assertNdarrayEqual(result[2], correct[2])
+
+    def test_12_euclide(self):
+        pm = self.pow_matrices[104155]
+        p1 = A_([168, 56, 34, 2, 10])
+        p2 = A_([1, 62, 32, 15])
+        correct = [A_([49727, 59509]), A_([56219, 39371]), A_([3984, 45633, 44647])]
+        result = gf.euclid(p1, p2, pm, max_deg=1)
+        self.assertNdarrayEqual(result[0], correct[0])
+        self.assertNdarrayEqual(result[1], correct[1])
+        self.assertNdarrayEqual(result[2], correct[2])
+
+    def test_13_euclid(self):
+        pm = self.pow_matrices[76553]
+        p1 = A_([10, 278, 1])
+        p2 = A_([784, 45])
+        result = gf.euclid(p1, p2, pm)
+        self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
+
     # TODO: (remove)
     def _polyprod_polydiv(self, p1, p2, pm):
         div = gf.polydiv(p1, p2, pm)
