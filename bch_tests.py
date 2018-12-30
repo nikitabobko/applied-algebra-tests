@@ -11,31 +11,31 @@ from bch import BCH
 
 class Tests(unittest.TestCase):
     def test_correct_1(self):
-        code = self.do_correctness_test(2, 1)
+        code = self.do_correctness_test(2, 1, 2)
         self.assertEqual(3, code.dist())
 
     def test_correct_2(self):
-        code = self.do_correctness_test(5, 10)
+        code = self.do_correctness_test(5, 10, 30)
         self.assertEqual(31, code.dist())
 
     def test_correct_3(self):
-        self.do_correctness_test(8, 60, num_of_msgs=2)
+        self.do_correctness_test(8, 60, 246, num_of_msgs=2)
 
     def test_correct_4(self):
-        self.do_correctness_test(9, 60, num_of_msgs=1)
+        self.do_correctness_test(9, 60, 408, num_of_msgs=1)
 
     def test_correct_5(self):
-        self.do_correctness_test(9, 20, num_of_msgs=1)
+        self.do_correctness_test(9, 20, 171, num_of_msgs=1)
 
     def test_correct_6(self):
-        self.do_correctness_test(9, 60, get_msgs=lambda len: [np.concatenate([[0, 1], np.zeros(len - 2).astype(int)])])
+        self.do_correctness_test(9, 60, 408, get_msgs=lambda len: [np.concatenate([[0, 1], np.zeros(len - 2).astype(int)])])
 
     def test_correct_7(self):
 
         def foo(it):
             return [[0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1]]
 
-        self.do_correctness_test(5, 10, get_broken=foo, get_expected_decoded=lambda l: np.array([np.full(l, np.nan)]))
+        self.do_correctness_test(5, 10, 30, get_broken=foo, get_expected_decoded=lambda l: np.array([np.full(l, np.nan)]))
 
     def test_correct_8(self):
 
@@ -64,16 +64,17 @@ class Tests(unittest.TestCase):
                  np.full(l, np.nan),
                  np.full(l, np.nan)])
 
-        code = self.do_correctness_test(5, 10, get_broken=broken, get_expected_decoded=expected)
+        code = self.do_correctness_test(5, 10, 30, get_broken=broken, get_expected_decoded=expected)
 
     # def test_correct_zhopa_polnaya_ne_doschitaetsya(self):
     #     self.do_correctness_test(16, 32767)  # infinity...
     #     self.fail(msg="I don't believe that your algorithm is fast enough to get to this point")
 
-    def do_correctness_test(self, q, t, num_of_msgs=10, get_msgs=None, get_broken=None, get_expected_decoded=None):
+    def do_correctness_test(self, q, t, deg_g, num_of_msgs=10, get_msgs=None, get_broken=None, get_expected_decoded=None):
         pbar = tqdm(total=7)
         n = 2 ** q - 1
         code = BCH(n, t)
+        self.assertEqual(deg_g, np.trim_zeros(code.g, 'f').size - 1)
         pbar.update(1)
         self.assertTrue(np.logical_or((code.g == [0]), (code.g == [1])).all())
         self.assertRaises(BaseException, lambda: code.decode([np.ones(n + 1).astype(int)]))
