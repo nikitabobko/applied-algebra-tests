@@ -10,7 +10,10 @@ import gf   # noqa: E402
 # noinspection PyUnresolvedReferences
 import bch  # noqa: E402
 
-A_ = np.asarray
+
+def A_(*args, **kwargs):
+    kwargs['dtype'] = np.int_
+    return np.asarray(*args, **kwargs)
 
 
 class NumpyTest(unittest.TestCase):
