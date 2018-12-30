@@ -188,8 +188,8 @@ class GFTests(NumpyTest):
             with self.subTest(idx=idx, primpoly=primpoly):
                 solution = np.nan
                 while solution is np.nan:
-                    A = np.take(pm[:, 1], np.random.randint(pm_len - 1, size=(n, n)))
-                    b = np.take(pm[:, 1], np.random.randint(pm_len - 1, size=n))
+                    A = np.take(pm[:, 1], np.random.randint(pm_len, size=(n, n)))
+                    b = np.take(pm[:, 1], np.random.randint(pm_len, size=n))
                     solution = gf.linsolve(A, b, pm)
                 solution = np.broadcast_to(solution, A.shape)
                 self.assertNdarrayEqual(gf.sum(gf.prod(A, solution, pm), axis=-1), b)
