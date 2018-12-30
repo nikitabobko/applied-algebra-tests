@@ -214,121 +214,123 @@ class GFTests(NumpyTest):
                 pm = self.pow_matrices[primpoly]
                 self.assertNdarrayEqual(gf.polyval(p, x, pm), res)
 
-    # TODO:
     def test_07_polyprod(self):
-        self.assertNdarrayEqual(A_([1, 0b111, 0b111]),
-                                gf.polyprod(A_([1, 0b11]), A_([1, 0b100]), self.pow_matrices[0b1011]))
+        with self.subTest(idx=0):
+            self.assertNdarrayEqual(A_([1, 0b111, 0b111]),
+                                    gf.polyprod(A_([1, 0b11]), A_([1, 0b100]),
+                                                self.pow_matrices[0b1011]))
 
-        # n1
-        pm = self.pow_matrices[19]
-        p1 = A_([pm[5, 1], pm[-1, 1]])
-        zero = A_([0])
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
+        with self.subTest(idx=1):
+            pm = self.pow_matrices[19]
+            p1 = A_([pm[5, 1], pm[-1, 1]])
+            zero = A_([0])
+            self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
 
-        # n2
-        pm = self.pow_matrices[19]
-        p1 = A_([pm[-3, 1], pm[-1, 1]])
-        zero = A_([0, 0])
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
+        with self.subTest(idx=2):
+            pm = self.pow_matrices[19]
+            p1 = A_([pm[-3, 1], pm[-1, 1]])
+            zero = A_([0, 0])
+            self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
 
-        # n3
-        pm = self.pow_matrices[19]
-        p1 = A_([0, pm[-3, 1], pm[-1, 1]])
-        zero = A_([0])
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
+        with self.subTest(idx=3):
+            pm = self.pow_matrices[19]
+            p1 = A_([0, pm[-3, 1], pm[-1, 1]])
+            zero = A_([0])
+            self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
 
-        # n4
-        pm = self.pow_matrices[19]
-        p1 = A_([0, pm[-3, 1], pm[-1, 1]])
-        zero = A_([0, 0])
-        self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
+        with self.subTest(idx=4):
+            pm = self.pow_matrices[19]
+            p1 = A_([0, pm[-3, 1], pm[-1, 1]])
+            zero = A_([0, 0])
+            self.assertNdarrayEqual(gf.polyprod(p1, zero, pm), A_([0]))
 
-    # TODO:
     def test_08_polydiv(self):
-        div = gf.polydiv(A_([0b10, 0b1]), A_([0b1]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
-        self.assertNdarrayEqual(div[1], A_([0b0]))
+        with self.subTest(idx=0):
+            div = gf.polydiv(A_([0b10, 0b1]), A_([0b1]), self.pow_matrices[0b1011])
+            self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
+            self.assertNdarrayEqual(div[1], A_([0b0]))
 
-        # n1
-        div = gf.polydiv(A_([0, 0b10, 0b1]), A_([0b1]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
-        self.assertNdarrayEqual(div[1], A_([0b0]))
+        with self.subTest(idx=1):
+            div = gf.polydiv(A_([0, 0b10, 0b1]), A_([0b1]), self.pow_matrices[0b1011])
+            self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
+            self.assertNdarrayEqual(div[1], A_([0b0]))
 
-        # n2
-        div = gf.polydiv(A_([0b10, 0b1]), A_([0, 0b1]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
-        self.assertNdarrayEqual(div[1], A_([0b0]))
+        with self.subTest(idx=2):
+            div = gf.polydiv(A_([0b10, 0b1]), A_([0, 0b1]), self.pow_matrices[0b1011])
+            self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
+            self.assertNdarrayEqual(div[1], A_([0b0]))
 
-        # n3
-        div = gf.polydiv(A_([0, 0b10, 0b1]), A_([0, 0b1]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
-        self.assertNdarrayEqual(div[1], A_([0b0]))
+        with self.subTest(idx=3):
+            div = gf.polydiv(A_([0, 0b10, 0b1]), A_([0, 0b1]), self.pow_matrices[0b1011])
+            self.assertNdarrayEqual(div[0], A_([0b10, 0b1]))
+            self.assertNdarrayEqual(div[1], A_([0b0]))
 
-        # 2
-        div = gf.polydiv(A_([0b10, 0b1]), A_([0b10]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], A_([0b1, 0b101]))
-        self.assertNdarrayEqual(div[1], A_([0b0]))
+        with self.subTest(idx=4):
+            div = gf.polydiv(A_([0b10, 0b1]), A_([0b10]), self.pow_matrices[0b1011])
+            self.assertNdarrayEqual(div[0], A_([0b1, 0b101]))
+            self.assertNdarrayEqual(div[1], A_([0b0]))
 
-        # 3
-        div = gf.polydiv(A_([0b10, 0b1]), A_([0b10, 0b0]), self.pow_matrices[0b1011])
-        self.assertNdarrayEqual(div[0], A_([0b1]))
-        self.assertNdarrayEqual(div[1], A_([0b1]))
+        with self.subTest(idx=5):
+            div = gf.polydiv(A_([0b10, 0b1]), A_([0b10, 0b0]), self.pow_matrices[0b1011])
+            self.assertNdarrayEqual(div[0], A_([0b1]))
+            self.assertNdarrayEqual(div[1], A_([0b1]))
 
-        # div by zero
-        pm = self.pow_matrices[5391]
-        for elem in pm[:, 1]:
-            self.assertRaises(BaseException, lambda: gf.polydiv(A_([elem]), A_([0]), pm))
+        with self.subTest(idx='divide by 0'):
+            pm = self.pow_matrices[5391]
+            for elem in pm[:, 1]:
+                self.assertRaises(BaseException, lambda: gf.polydiv(A_([elem]), A_([0]), pm))
 
-    # TODO:
     def test_09_polyprod_polydiv(self):
-        pm = self.pow_matrices[108439]
-        p1 = A_([pm[5, 1], pm[3, 1]])
-        p2 = A_([pm[2, 1], pm[-1, 1]])
-        self._polyprod_polydiv(p1, p2, pm)
+        with self.subTest(idx=0):
+            pm = self.pow_matrices[108439]
+            p1 = A_([pm[5, 1], pm[3, 1]])
+            p2 = A_([pm[2, 1], pm[-1, 1]])
+            self._polyprod_polydiv(p1, p2, pm)
 
-        # 2
-        pm = self.pow_matrices[76553]
-        p1 = A_([pm[5, 1], pm[9, 1]])
-        p2 = A_([pm[6, 1], pm[-2, 1]])
-        self._polyprod_polydiv(p1, p2, pm)
+        with self.subTest(idx=1):
+            pm = self.pow_matrices[76553]
+            p1 = A_([pm[5, 1], pm[9, 1]])
+            p2 = A_([pm[6, 1], pm[-2, 1]])
+            self._polyprod_polydiv(p1, p2, pm)
 
-    # TODO:
     def test_10_euclid(self):
-        pm = self.pow_matrices[37]
-        p1 = A_([2, 14, 22, 23, 8, 17, 1, 11, 26, 3])
-        p2 = A_([31, 23, 29, 31, 11, 9])
-        max_deg = 3
-        result = gf.euclid(p1, p2, pm, max_deg=max_deg)
-        self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
+        with self.subTest(idx=0):
+            pm = self.pow_matrices[37]
+            p1 = A_([2, 14, 22, 23, 8, 17, 1, 11, 26, 3])
+            p2 = A_([31, 23, 29, 31, 11, 9])
+            max_deg = 3
+            result = gf.euclid(p1, p2, pm, max_deg=max_deg)
+            self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)),
+                                    result[0])
 
-    def test_11_euclid(self):
-        pm = self.pow_matrices[357]
-        p1 = A_([56, 34, 2, 10])
-        p2 = A_([1, 62, 32, 15])
-        correct = [A_([144]), A_([137,  70,  20]), A_([128, 199,  73])]
-        result = gf.euclid(p1, p2, pm)
-        self.assertNdarrayEqual(result[0], correct[0])
-        self.assertNdarrayEqual(result[1], correct[1])
-        self.assertNdarrayEqual(result[2], correct[2])
+        with self.subTest(idx=1):
+            pm = self.pow_matrices[357]
+            p1 = A_([56, 34, 2, 10])
+            p2 = A_([1, 62, 32, 15])
+            correct = [A_([144]), A_([137, 70, 20]), A_([128, 199, 73])]
+            result = gf.euclid(p1, p2, pm)
+            self.assertNdarrayEqual(result[0], correct[0])
+            self.assertNdarrayEqual(result[1], correct[1])
+            self.assertNdarrayEqual(result[2], correct[2])
 
-    def test_12_euclide(self):
-        pm = self.pow_matrices[104155]
-        p1 = A_([168, 56, 34, 2, 10])
-        p2 = A_([1, 62, 32, 15])
-        correct = [A_([49727, 59509]), A_([56219, 39371]), A_([3984, 45633, 44647])]
-        result = gf.euclid(p1, p2, pm, max_deg=1)
-        self.assertNdarrayEqual(result[0], correct[0])
-        self.assertNdarrayEqual(result[1], correct[1])
-        self.assertNdarrayEqual(result[2], correct[2])
+        with self.subTest(idx=2):
+            pm = self.pow_matrices[104155]
+            p1 = A_([168, 56, 34, 2, 10])
+            p2 = A_([1, 62, 32, 15])
+            correct = [A_([49727, 59509]), A_([56219, 39371]), A_([3984, 45633, 44647])]
+            result = gf.euclid(p1, p2, pm, max_deg=1)
+            self.assertNdarrayEqual(result[0], correct[0])
+            self.assertNdarrayEqual(result[1], correct[1])
+            self.assertNdarrayEqual(result[2], correct[2])
 
-    def test_13_euclid(self):
-        pm = self.pow_matrices[76553]
-        p1 = A_([10, 278, 1])
-        p2 = A_([784, 45])
-        result = gf.euclid(p1, p2, pm)
-        self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)), result[0])
+        with self.subTest(idx=3):
+            pm = self.pow_matrices[76553]
+            p1 = A_([10, 278, 1])
+            p2 = A_([784, 45])
+            result = gf.euclid(p1, p2, pm)
+            self.assertNdarrayEqual(gf.polyadd(gf.polyprod(p1, result[1], pm), gf.polyprod(p2, result[2], pm)),
+                                    result[0])
 
-    # TODO: (remove)
     def _polyprod_polydiv(self, p1, p2, pm):
         div = gf.polydiv(p1, p2, pm)
         mult = gf.polyprod(div[0], p2, pm)
