@@ -145,8 +145,8 @@ class GFTests(NumpyTest):
             # Division by zero and division of zero
             with self.subTest(idx=idx, primpoly=primpoly, op='divide'):
                 with self.assertRaises(BaseException):
-                    gf.divide(a, A_([0]), pm)
-                self.assertNdarrayEqual(gf.divide(A_([0]), b, pm), np.broadcast_to(0, b.shape))
+                    gf.divide(a, np.zeros_like(a), pm)
+                self.assertNdarrayEqual(gf.divide(np.zeros_like(b), b, pm), np.broadcast_to(0, b.shape))
 
     def test_02_prod_divide(self):
         """
