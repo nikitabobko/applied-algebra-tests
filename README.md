@@ -1,17 +1,17 @@
 # Applied Algebra Tests
 
-## FAQ
-### Where to write your own code?
-In files `gf.py` and `bch.py`
+## Installation
+Run the following command in the folder with `bch.py` and `gf.py`:
+```
+git clone https://github.com/nikitabobko/applied-algebra-tests.git
+```
 
----
-### How to run tests?
-#### Windows
-`python3 __main__.py`
-
-#### Linux
-`./__main__.py`
-
-or
-
-`python3 __main__.py`
+## Usage
+Run the following command in the folder with `bch.py` and `gf.py`
+```
+python3 applied-algebra-tests
+```
+Also you can use:
+```
+python3 -m unittest discover applied-algebra-tests
+```
