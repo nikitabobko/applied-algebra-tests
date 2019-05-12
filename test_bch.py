@@ -82,7 +82,7 @@ class BCHTests(NumpyTest):
             self.assertRaises(BaseException, lambda: code.decode([np.ones(n + 1).astype(int)]))
             x = np.zeros(n + 1, dtype=np.int)
             x[[0, -1]] = 1
-            self.assertNdarrayEqual(gf.polydiv(x, code.g, code.pm)[1], A_([0]))
+            self.assertNdarrayEqual(gf.polydivmod(x, code.g, code.pm)[1], A_([0]))
             self.assertRaises(BaseException, lambda: code.encode([np.ones(k + 1).astype(int)]))
         if get_msgs is None:
             msgs = np.random.randint(2, size=(num_of_msgs, k))
@@ -93,7 +93,7 @@ class BCHTests(NumpyTest):
         for i in coded:
             with self.subTest(t='encoding', msg_no=i):
                 self.assertNdarrayEqual(gf.polyval(i, code.R, code.pm), A_(len(code.R)*(0,)))
-                self.assertNdarrayEqual(gf.polydiv(i, code.g, code.pm)[1], A_([0]))
+                self.assertNdarrayEqual(gf.polydivmod(i, code.g, code.pm)[1], A_([0]))
         with self.subTest(t='decoding without errors', method='euclid (None)'):
             self.assertNdarrayEqual(code.decode(coded), coded)
         with self.subTest(t='decoding without errors', method='pgz'):
