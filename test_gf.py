@@ -7,7 +7,7 @@ class GFTests(NumpyTest):
         self.pow_matrices = {}
         try:
             with np.load(os.path.join(self.basedir, 'pow_matrices.npz')) as pms:
-                for primpoly, pm in pms.iteritems():
+                for primpoly, pm in pms.items():
                     self.pow_matrices[int(primpoly)] = pm
         except FileNotFoundError:
             self.fail("pow_matrices.npz is missing, please download the full testing repo")
