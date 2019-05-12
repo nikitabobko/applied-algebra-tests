@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
 if __name__ == '__main__':
-    from gf_tests import *
-    from bch_tests import *
+    from test_gf import *
+    from test_bch import *
     unittest.main(verbosity=3)
