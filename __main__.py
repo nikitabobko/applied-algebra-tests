@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 if __name__ == '__main__':
     from gf_tests import *
     from bch_tests import *
