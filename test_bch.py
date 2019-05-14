@@ -4,19 +4,19 @@ from common import *
 class BCHTests(NumpyTest):
     def test_correct_00(self):
         code = self.do_correctness_test(6, 12, 53)
-        self.assertEqual(27, code.dist())
+        self.check_distance(27, code)
 
     def test_correct_01(self):
         code = self.do_correctness_test(2, 1, 2)
-        self.assertEqual(3, code.dist())
+        self.check_distance(3, code)
 
     def test_correct_02(self):
         code = self.do_correctness_test(5, 10, 30)
-        self.assertEqual(31, code.dist())
+        self.check_distance(31, code)
 
     def test_correct_03(self):
         code = self.do_correctness_test(8, 60, 246, num_of_msgs=2)
-        self.assertEqual(127, code.dist())
+        self.check_distance(127, code)
 
     def test_correct_04(self):
         self.do_correctness_test(9, 60, 408, num_of_msgs=1)
@@ -66,7 +66,7 @@ class BCHTests(NumpyTest):
 
     def test_correct_09(self):
         code = self.do_correctness_test(9, 120, 501, num_of_msgs=1)
-        self.assertEqual(255, code.dist())
+        self.check_distance(255, code)
 
     def test_correct_10(self):
         self.do_correctness_test(10, 228, 997, num_of_msgs=1)
@@ -122,6 +122,10 @@ class BCHTests(NumpyTest):
             mistake_pos = np.random.permutation(len(broken[j]))[:mistake_num]
             broken[j, mistake_pos] ^= 1
         return broken
+
+    def check_distance(self, expected_distance, code):
+        with self.subTest(t='distance check'):
+            self.assertEqual(expected_distance, code.dist())
 
 
 if __name__ == '__main__':
