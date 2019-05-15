@@ -1,5 +1,8 @@
 # Applied Algebra Tests
 
+**Warning:** `bch` tests need one extra function `gf.polyadd(p1, p2)` which
+adds two polynoms.
+
 ## Installation
 Run the following command in the folder with `bch.py` and `gf.py`:
 ```
